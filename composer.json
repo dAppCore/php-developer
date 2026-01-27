@@ -16,7 +16,7 @@
     },
     "autoload": {
         "psr-4": {
-            "Mod\\Developer\\": "app/Mod/Developer/"
+            "Core\\Developer\\": "src/"
         }
     },
     "autoload-dev": {
@@ -27,7 +27,7 @@
     "extra": {
         "laravel": {
             "providers": [
-                "Mod\\Developer\\Boot"
+                "Core\\Developer\\Boot"
             ]
         }
     },
