@@ -7,8 +7,8 @@
  * Tests the primary admin flow through the developer tools.
  */
 
-use Core\Mod\Tenant\Models\User;
-use Core\Mod\Tenant\Models\Workspace;
+use Core\Tenant\Models\User;
+use Core\Tenant\Models\Workspace;
 
 describe('Developer Tools', function () {
     beforeEach(function () {

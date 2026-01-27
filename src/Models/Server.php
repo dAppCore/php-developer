@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Core\Developer\Models;
 
-use Core\Mod\Tenant\Concerns\BelongsToWorkspace;
+use Core\Tenant\Concerns\BelongsToWorkspace;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
