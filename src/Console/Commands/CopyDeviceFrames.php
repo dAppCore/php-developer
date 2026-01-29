@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Core\Developer\Console\Commands;
 
 use Illuminate\Console\Command;
@@ -14,6 +16,28 @@ class CopyDeviceFrames extends Command
     public function handle(): int
     {
         $config = config('device-frames');
+
+        // Validate config exists and has required keys
+        if (! is_array($config)) {
+            $this->error('The device-frames configuration is not defined. Please publish the config file.');
+
+            return Command::FAILURE;
+        }
+
+        $requiredKeys = ['source_path', 'public_path', 'devices'];
+        $missingKeys = array_diff($requiredKeys, array_keys($config));
+        if (! empty($missingKeys)) {
+            $this->error('Missing required config keys: '.implode(', ', $missingKeys));
+
+            return Command::FAILURE;
+        }
+
+        if (! is_array($config['devices']) || empty($config['devices'])) {
+            $this->error('The device-frames.devices configuration must be a non-empty array.');
+
+            return Command::FAILURE;
+        }
+
         $sourcePath = $config['source_path'];
         $publicPath = public_path($config['public_path']);
 

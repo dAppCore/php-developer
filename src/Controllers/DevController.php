@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Core\Developer\Controllers;
 
 use Core\Front\Controller;

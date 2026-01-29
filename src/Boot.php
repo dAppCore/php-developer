@@ -31,6 +31,7 @@ class Boot extends ServiceProvider implements AdminMenuProvider
     public function boot(): void
     {
         $this->loadTranslationsFrom(__DIR__.'/Lang', 'developer');
+        $this->mergeConfigFrom(__DIR__.'/config.php', 'developer');
 
         app(AdminMenuRegistry::class)->register($this);
 

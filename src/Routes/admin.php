@@ -9,16 +9,19 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::prefix('hub')->name('hub.')->group(function () {
-    // Developer tools (Hades only) - authorization checked in components
-    Route::prefix('dev')->name('dev.')->group(function () {
-        Route::get('/logs', \Core\Developer\View\Modal\Admin\Logs::class)->name('logs');
-        Route::get('/routes', \Core\Developer\View\Modal\Admin\Routes::class)->name('routes');
-        Route::get('/cache', \Core\Developer\View\Modal\Admin\Cache::class)->name('cache');
-        Route::get('/activity', \Core\Developer\View\Modal\Admin\ActivityLog::class)->name('activity');
-        Route::get('/servers', \Core\Developer\View\Modal\Admin\Servers::class)->name('servers');
-        Route::get('/database', \Core\Developer\View\Modal\Admin\Database::class)->name('database');
-        Route::get('/route-inspector', \Core\Developer\View\Modal\Admin\RouteInspector::class)->name('route-inspector');
-    });
+    // Developer tools (Hades only) - authorization enforced via middleware
+    Route::prefix('dev')
+        ->name('dev.')
+        ->middleware(\Core\Developer\Middleware\RequireHades::class)
+        ->group(function () {
+            Route::get('/logs', \Core\Developer\View\Modal\Admin\Logs::class)->name('logs');
+            Route::get('/routes', \Core\Developer\View\Modal\Admin\Routes::class)->name('routes');
+            Route::get('/cache', \Core\Developer\View\Modal\Admin\Cache::class)->name('cache');
+            Route::get('/activity', \Core\Developer\View\Modal\Admin\ActivityLog::class)->name('activity');
+            Route::get('/servers', \Core\Developer\View\Modal\Admin\Servers::class)->name('servers');
+            Route::get('/database', \Core\Developer\View\Modal\Admin\Database::class)->name('database');
+            Route::get('/route-inspector', \Core\Developer\View\Modal\Admin\RouteInspector::class)->name('route-inspector');
+        });
 });
 
 /*

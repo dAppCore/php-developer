@@ -165,10 +165,16 @@ class Servers extends Component
         }
 
         try {
-            // Create a temporary key file
-            $tempKeyPath = sys_get_temp_dir().'/ssh_test_'.uniqid();
-            file_put_contents($tempKeyPath, $server->getDecryptedPrivateKey());
+            // Create a unique temporary key file with secure permissions
+            // Using tempnam() for atomic file creation to prevent race conditions
+            $tempKeyPath = tempnam(sys_get_temp_dir(), 'ssh_key_');
+            if ($tempKeyPath === false) {
+                throw new \RuntimeException('Failed to create temporary key file');
+            }
+
+            // Set restrictive permissions before writing sensitive data
             chmod($tempKeyPath, 0600);
+            file_put_contents($tempKeyPath, $server->getDecryptedPrivateKey());
 
             // Test SSH connection with a simple echo command
             $result = Process::timeout(15)->run([

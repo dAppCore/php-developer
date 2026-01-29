@@ -136,7 +136,17 @@ class Database extends Component
         // Get first word of query
         $firstWord = strtoupper(strtok($query, ' '));
 
-        return in_array($firstWord, self::ALLOWED_STATEMENTS, true);
+        if (! in_array($firstWord, self::ALLOWED_STATEMENTS, true)) {
+            return false;
+        }
+
+        // Block stacked queries (e.g., "SELECT 1; DROP TABLE users")
+        // Check for semicolon followed by any non-whitespace content
+        if (preg_match('/;\s*\S/', $query)) {
+            return false;
+        }
+
+        return true;
     }
 
     private function checkHadesAccess(): void
