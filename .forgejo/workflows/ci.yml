@@ -40,6 +40,11 @@ jobs:
             ../php-admin
           ls -la ../php-framework/composer.json ../php-admin/composer.json
 
+      - name: Configure path repositories
+        run: |
+          composer config repositories.core path ../php-framework --no-interaction
+          composer config repositories.admin path ../php-admin --no-interaction
+
       - name: Install dependencies
         run: composer install --prefer-dist --no-interaction --no-progress
 
