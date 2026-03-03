@@ -1,15 +1,21 @@
 {
-    "name": "host-uk/core-developer",
+    "name": "core/php-developer",
     "type": "library",
     "description": "Developer tools module for Core PHP Framework - route inspector, database explorer, logs viewer",
-    "keywords": ["laravel", "core-php", "developer-tools", "debugging", "route-inspector"],
+    "keywords": [
+        "laravel",
+        "core-php",
+        "developer-tools",
+        "debugging",
+        "route-inspector"
+    ],
     "license": "EUPL-1.2",
     "require": {
         "php": "^8.2",
         "laravel/framework": "^11.0|^12.0",
         "livewire/livewire": "^3.0|^4.0",
-        "host-uk/core": "@dev",
-        "host-uk/core-admin": "@dev"
+        "core/php-framework": "@dev",
+        "core/php-admin": "@dev"
     },
     "require-dev": {
         "phpunit/phpunit": "^11.5"
