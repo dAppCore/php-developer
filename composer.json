@@ -1,5 +1,5 @@
 {
-    "name": "core/php-developer",
+    "name": "lthn/php-developer",
     "type": "library",
     "description": "Developer tools module for Core PHP Framework - route inspector, database explorer, logs viewer",
     "keywords": [
@@ -14,7 +14,7 @@
         "php": "^8.2",
         "laravel/framework": "^11.0|^12.0",
         "livewire/livewire": "^3.0|^4.0",
-        "core/php": "*",
+        "lthn/php": "*",
         "core/php-admin": "@dev"
     },
     "require-dev": {
@@ -46,5 +46,8 @@
         }
     },
     "minimum-stability": "stable",
-    "prefer-stable": true
+    "prefer-stable": true,
+    "replace": {
+        "core/php-developer": "self.version"
+    }
 }
