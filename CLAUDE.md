@@ -4,110 +4,100 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is **core-developer**, a developer tools module for the Core PHP Framework. It provides an admin panel for debugging and monitoring applications, including log viewer, route inspector, database explorer, cache management, and SSH server connections.
+**core-developer** (`lthn/php-developer`) — developer tools module for the Core PHP Framework. Provides an admin panel for debugging and monitoring: log viewer, route inspector, database explorer, cache management, activity log, and SSH server connections.
 
-**Key characteristics:**
 - PHP 8.2+ / Laravel 11-12 / Livewire 3-4
-- L1 module using `Core\Developer\` namespace
-- Requires `host-uk/core` and `host-uk/core-admin` dependencies
-- All features require "Hades" (god-mode) authorization
+- Module namespace: `Core\Developer\`
+- Dependencies: `lthn/php` (core framework), `core/php-admin` (admin panel)
+- All features gated behind "Hades" (god-mode) authorization
 
-## Common Commands
+## Commands
 
 ```bash
-# Install dependencies
-composer install
-npm install
+# Tests
+./vendor/bin/phpunit                          # All tests
+./vendor/bin/phpunit --testsuite=Unit         # Unit only
+./vendor/bin/phpunit --testsuite=Feature      # Feature only
+./vendor/bin/phpunit --filter="test name"     # Single test
 
-# Run tests
-./vendor/bin/phpunit
-
-# Run specific test suite
-./vendor/bin/phpunit --testsuite=Unit
-./vendor/bin/phpunit --testsuite=Feature
-
-# Frontend development
+# Frontend
 npm run dev      # Vite dev server
 npm run build    # Production build
 ```
 
 ## Architecture
 
-### Event-Driven Module Pattern
+### Event-Driven Lazy Loading
 
-The module uses Core Framework's event-driven lazy loading via the `Boot` class:
+The module registers via `Boot` (a `ServiceProvider` + `AdminMenuProvider`). Nothing loads until events fire:
 
 ```php
 public static array $listens = [
-    AdminPanelBooting::class => 'onAdminPanel',
-    ConsoleBooting::class => 'onConsole',
+    AdminPanelBooting::class => 'onAdminPanel',  // loads routes, views
+    ConsoleBooting::class => 'onConsole',          // registers artisan commands
 ];
 ```
 
-Routes, views, and commands are only loaded when these events fire.
-
-### Key Components
-
-| Directory | Purpose |
-|-----------|---------|
-| `src/Boot.php` | Service provider, event handlers, admin menu registration |
-| `src/View/Modal/Admin/` | Livewire page components (Logs, Routes, Cache, etc.) |
-| `src/Services/` | Business logic (LogReaderService, RouteTestService) |
-| `src/Controllers/` | API endpoints for developer tools |
-| `src/Middleware/` | RequireHades (authorization), ApplyIconSettings |
-
-### Authorization
-
-All developer features require Hades access:
-- Middleware: `RequireHades` checks `auth()->user()->isHades()`
-- Livewire components call `$this->checkHadesAccess()` in `mount()`
-- Rate limiting configured for API endpoints (dev-cache-clear, dev-logs, dev-routes, dev-session)
+`boot()` always runs (translations, config merge, admin menu registration, rate limiters, query logging in local env).
 
 ### Routing
 
-- Admin pages: `/hub/dev/*` (Livewire components)
-- API endpoints: `/hub/api/dev/*` (controller actions with throttling)
-- Route names prefixed with `hub.dev.` and `hub.api.dev.`
+All routes defined in `src/Routes/admin.php`, loaded only when `AdminPanelBooting` fires:
 
-### Livewire Component Pattern
+- **Admin pages:** `/hub/dev/*` — Livewire components, route names `hub.dev.*`
+- **API endpoints:** `/hub/api/dev/*` — JSON controller actions, route names `hub.api.dev.*`, each with throttle middleware
 
-Uses modern attribute-based syntax:
+Both groups use `RequireHades` middleware. Rate limiters (`dev-cache-clear`, `dev-logs`, `dev-routes`, `dev-session`) are configured in `Boot::configureRateLimiting()`.
+
+### Livewire Components
+
+Located at `src/View/Modal/Admin/`. Use attribute-based syntax:
+
 ```php
 #[Title('Application Logs')]
 #[Layout('hub::admin.layouts.app')]
 class Logs extends Component
 ```
 
-Views located at `src/View/Blade/admin/` and referenced as `developer::admin.{name}`.
+Each component calls `$this->checkHadesAccess()` in `mount()` (private method that aborts 403). Views referenced as `developer::admin.{name}`, files in `src/View/Blade/admin/`.
 
-### Security Features
+### Authorization: Hades
 
-LogReaderService automatically redacts sensitive data:
-- API keys (Stripe, GitHub, AWS)
-- Tokens (Bearer, JWT)
-- Database credentials
-- Partial email/IP redaction
-- Credit card numbers
-- Private keys
+Two enforcement layers:
+1. `RequireHades` middleware on all route groups — checks `$user->isHades()`
+2. `checkHadesAccess()` in each Livewire component's `mount()` — redundant guard
 
-### Multi-Tenancy
+### SSH / Remote Server Management
 
-Models use the `BelongsToWorkspace` trait for workspace isolation. The Server model also uses `LogsActivity` and `SoftDeletes`.
+`RemoteServerManager` trait (in `src/Concerns/`) provides SSH operations via phpseclib3. The `Server` model stores connection details with `private_key` encrypted via Laravel's `encrypted` cast. Key pattern:
 
-## Testing
-
-Tests use Pest-style syntax in `src/Tests/UseCase/`:
 ```php
-describe('Developer Tools', function () {
-    it('can view the logs page', function () { ... });
+$this->withConnection($server, function () {
+    $this->run('git pull');
 });
 ```
 
-PHPUnit configuration uses SQLite in-memory database with Telescope/Pulse disabled.
+The trait verifies workspace ownership before connecting.
 
-## Localization
+### Multi-Tenancy
 
-All strings in `src/Lang/en_GB/developer.php`. Reference as:
-```php
-__('developer::developer.logs.title')
-```
+The `Server` model uses `BelongsToWorkspace` trait for workspace isolation, plus `LogsActivity` (Spatie) and `SoftDeletes`.
+
+### Localization
+
+All UI strings in `src/Lang/en_GB/developer.php`. Key structure: `developer::developer.{section}.{key}`.
+
+## Testing
+
+Tests use Pest-style syntax. Use-case acceptance tests live in `src/Tests/UseCase/`. Standard PHPUnit test directories: `tests/Unit/` and `tests/Feature/`.
+
+PHPUnit configured with SQLite `:memory:`, Telescope/Pulse disabled (`phpunit.xml`).
+
+## Key Conventions
+
+- All PHP files use `declare(strict_types=1)`
+- Controller extends `Core\Front\Controller` (not Laravel's base)
+- Services injected via constructor (`DevController`) or resolved from container (`app(LogReaderService::class)`)
+- `LogReaderService` auto-redacts sensitive data (API keys, tokens, credentials) in log output
+- Config lives in `src/config.php`, merged as `developer.*` — SSH timeouts, Hades token, Horizon notification settings
+- Module also overrides Pulse vendor views: `view()->addNamespace('pulse', ...)`
