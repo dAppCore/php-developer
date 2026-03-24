@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * UseCase: Developer Tools (Basic Flow)
  *

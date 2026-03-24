@@ -15,10 +15,14 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ```bash
 # Tests
-./vendor/bin/phpunit                          # All tests
-./vendor/bin/phpunit --testsuite=Unit         # Unit only
-./vendor/bin/phpunit --testsuite=Feature      # Feature only
-./vendor/bin/phpunit --filter="test name"     # Single test
+composer test                                 # All tests
+composer test -- --testsuite=Unit             # Unit only
+composer test -- --testsuite=Feature          # Feature only
+composer test -- --filter="test name"         # Single test
+
+# Code style (PSR-12 via Laravel Pint)
+composer lint                                 # Fix code style
+./vendor/bin/pint --dirty                     # Format changed files only
 
 # Frontend
 npm run dev      # Vite dev server
