@@ -15,7 +15,7 @@
         "laravel/framework": "^11.0|^12.0",
         "livewire/livewire": "^3.0|^4.0",
         "lthn/php": "*",
-        "core/php-admin": "@dev"
+        "lthn/php-admin": "*"
     },
     "require-dev": {
         "phpunit/phpunit": "^11.5"
