@@ -28,6 +28,9 @@ class Boot extends ServiceProvider implements AdminMenuProvider
         ConsoleBooting::class => 'onConsole',
     ];
 
+    /** Guards against double registration when onAdminPanel() also fires. */
+    protected bool $routesRegistered = false;
+
     public function boot(): void
     {
         $this->loadTranslationsFrom(__DIR__.'/Lang', 'developer');
@@ -35,12 +38,41 @@ class Boot extends ServiceProvider implements AdminMenuProvider
 
         app(AdminMenuRegistry::class)->register($this);
 
+        $this->loadViewsFrom(__DIR__.'/View/Blade', $this->moduleName);
+        $this->registerAdminRoutes();
+
         $this->configureRateLimiting();
 
         // Enable query logging in local environment for dev bar
         if ($this->app->environment('local')) {
             DB::enableQueryLog();
         }
+    }
+
+    /**
+     * Register the developer routes.
+     *
+     * boot() registers the admin menu unconditionally, but the routes it links
+     * to were only registered from onAdminPanel() — which fires off the static
+     * $listens array. That array is wired by ModuleScanner, and ModuleScanner
+     * only scans app/Core, app/Mod and app/Website. This package lives under
+     * vendor/, so it was never scanned: the menu appeared, its routes did not
+     * exist, and the panel died with "Route [hub.dev.logs] not defined" as soon
+     * as anything rendered the sidebar.
+     *
+     * Registering here keeps the menu and its targets in step no matter how the
+     * provider was discovered. onAdminPanel() still registers them for hosts
+     * where the event does fire, so the guard below keeps that idempotent.
+     */
+    protected function registerAdminRoutes(): void
+    {
+        if ($this->routesRegistered || ! file_exists(__DIR__.'/Routes/admin.php')) {
+            return;
+        }
+
+        $this->routesRegistered = true;
+
+        $this->loadRoutesFrom(__DIR__.'/Routes/admin.php');
     }
 
     /**
@@ -135,7 +167,8 @@ class Boot extends ServiceProvider implements AdminMenuProvider
         // Override Pulse vendor views
         view()->addNamespace('pulse', __DIR__.'/View/Blade/vendor/pulse');
 
-        if (file_exists(__DIR__.'/Routes/admin.php')) {
+        if (! $this->routesRegistered && file_exists(__DIR__.'/Routes/admin.php')) {
+            $this->routesRegistered = true;
             $event->routes(fn () => require __DIR__.'/Routes/admin.php');
         }
     }
