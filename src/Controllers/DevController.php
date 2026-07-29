@@ -14,6 +14,21 @@ use Core\Developer\Services\LogReaderService;
 
 class DevController extends Controller
 {
+    /**
+     * Every action here is for whoever runs the platform, nobody else.
+     *
+     * Called with no arguments by all of them, which is why Laravel's
+     * AuthorizesRequests is the wrong trait: its authorize() takes an ability
+     * and a subject, and there is neither. The check this wanted is the one
+     * the package's own RequireHades middleware makes, so it makes it — these
+     * endpoints hand out routes, sessions and log contents, and that is the
+     * whole of the estate's shape to anyone who can read it.
+     */
+    protected function authorize(): void
+    {
+        abort_unless(auth()->user()?->isHades() ?? false, 403, 'Developer tools are Hades only.');
+    }
+
     public function __construct(
         protected LogReaderService $logReader
     ) {}
