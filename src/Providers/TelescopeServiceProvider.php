@@ -6,6 +6,8 @@ namespace Core\Developer\Providers;
 
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
+use Laravel\Telescope\IncomingEntry;
+use Laravel\Telescope\Telescope;
 
 class TelescopeServiceProvider extends ServiceProvider
 {
@@ -15,7 +17,7 @@ class TelescopeServiceProvider extends ServiceProvider
     public function boot(): void
     {
         // Skip if Telescope is not installed
-        if (! class_exists(\Laravel\Telescope\Telescope::class)) {
+        if (! class_exists(Telescope::class)) {
             return;
         }
 
@@ -28,7 +30,7 @@ class TelescopeServiceProvider extends ServiceProvider
     public function register(): void
     {
         // Skip if Telescope is not installed (production without dev dependencies)
-        if (! class_exists(\Laravel\Telescope\Telescope::class)) {
+        if (! class_exists(Telescope::class)) {
             return;
         }
 
@@ -36,7 +38,7 @@ class TelescopeServiceProvider extends ServiceProvider
 
         $isLocal = $this->app->environment('local');
 
-        \Laravel\Telescope\Telescope::filter(function (\Laravel\Telescope\IncomingEntry $entry) use ($isLocal) {
+        Telescope::filter(function (IncomingEntry $entry) use ($isLocal) {
             return $isLocal ||
                    $entry->isReportableException() ||
                    $entry->isFailedRequest() ||
@@ -55,9 +57,9 @@ class TelescopeServiceProvider extends ServiceProvider
             return;
         }
 
-        \Laravel\Telescope\Telescope::hideRequestParameters(['_token']);
+        Telescope::hideRequestParameters(['_token']);
 
-        \Laravel\Telescope\Telescope::hideRequestHeaders([
+        Telescope::hideRequestHeaders([
             'cookie',
             'x-csrf-token',
             'x-xsrf-token',

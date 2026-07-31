@@ -4,11 +4,12 @@ declare(strict_types=1);
 
 namespace Core\Developer\Services;
 
+use Core\Developer\Data\RouteTestResult;
+use Illuminate\Contracts\Http\Kernel;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Route;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Route as RouteFacade;
-use Core\Developer\Data\RouteTestResult;
 use Throwable;
 
 /**
@@ -262,7 +263,7 @@ class RouteTestService
             }
 
             // Handle the request through the kernel
-            $kernel = app(\Illuminate\Contracts\Http\Kernel::class);
+            $kernel = app(Kernel::class);
             $response = $kernel->handle($request);
 
             $endTime = microtime(true);

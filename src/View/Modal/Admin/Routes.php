@@ -6,9 +6,9 @@ namespace Core\Developer\View\Modal\Admin;
 
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Route;
+use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Attributes\Url;
-use Livewire\Attributes\Layout;
 use Livewire\Component;
 
 #[Title('Application Routes')]

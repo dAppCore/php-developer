@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace Core\Developer\Controllers;
 
+use Core\Developer\Services\LogReaderService;
 use Core\Front\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Str;
-use Core\Developer\Services\LogReaderService;
 
 class DevController extends Controller
 {
@@ -32,7 +32,6 @@ class DevController extends Controller
     public function __construct(
         protected LogReaderService $logReader
     ) {}
-
 
     /**
      * Get recent log entries.

@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Core\CoreServiceProvider;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -9,7 +10,7 @@ use Illuminate\Foundation\Configuration\Middleware;
 return Application::configure(basePath: dirname(__DIR__))
     ->withProviders([
         // Core PHP Framework Packages
-        \Core\CoreServiceProvider::class,
+        CoreServiceProvider::class,
     ])
     ->withRouting(
         web: __DIR__.'/../routes/web.php',

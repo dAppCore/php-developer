@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Core\Developer\View\Modal\Admin;
 
+use Core\Developer\Models\Server;
 use Flux\Flux;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Process;
@@ -11,7 +12,6 @@ use Livewire\Attributes\Computed;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Component;
-use Core\Developer\Models\Server;
 
 #[Title('Server Management')]
 #[Layout('hub::admin.layouts.app')]

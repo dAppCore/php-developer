@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Core\Developer\Models;
 
+use Carbon\Carbon;
 use Core\Tenant\Concerns\BelongsToWorkspace;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -26,10 +27,10 @@ use Spatie\Activitylog\Traits\LogsActivity;
  * @property string $user
  * @property string|null $private_key
  * @property string $status
- * @property \Carbon\Carbon|null $last_connected_at
- * @property \Carbon\Carbon|null $created_at
- * @property \Carbon\Carbon|null $updated_at
- * @property \Carbon\Carbon|null $deleted_at
+ * @property Carbon|null $last_connected_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property Carbon|null $deleted_at
  */
 class Server extends Model
 {

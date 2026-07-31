@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace Core\Developer\View\Modal\Admin;
 
+use Core\Developer\Services\LogReaderService;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Log;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Component;
-use Core\Developer\Services\LogReaderService;
 
 #[Title('Application Logs')]
 #[Layout('hub::admin.layouts.app')]
